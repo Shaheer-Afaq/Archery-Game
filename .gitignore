@@ -1,3 +1,5 @@
 vendor/
 go.mod/
 go.sum/
+raylib.dll
+README.md
