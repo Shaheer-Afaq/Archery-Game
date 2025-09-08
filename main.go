@@ -37,21 +37,7 @@ func (g *Game) initialize() {
 	// var Timebar ProgressBar = NewProgressBar(20, 400, rl.NewVector2(100, 100), 1, rl.Red, rl.Black, 5, true)
 
 }
-func (g *Game) update(final_texture *rl.RenderTexture2D) {
-	dt := rl.GetFrameTime()
-	if rl.IsKeyPressed(rl.KeySpace) && len(g.Arrows) < 5 {
-		NewArrow(rl.NewVector2(300, 600), 150, -45, 0.3, 16) //New Arrow Test
-	}
-
-	for i := range g.Arrows {
-		g.Arrows[i].update(dt)
-	}
-	g.ProgressBars[0].progress += rl.GetMouseDelta().X * 0.005
-	g.ProgressBars[0].pos.Y += rl.GetMouseDelta().Y * 0.6
-	g.ProgressBars[0].update()
-
-}
-func (g *Game) StabilizeWindowRatio() {
+func (g *Game) stabilizeRatioAndDraw() {
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
 	currentAspect := float32(w) / float32(h)
@@ -66,7 +52,7 @@ func (g *Game) StabilizeWindowRatio() {
 
 	rl.BeginTextureMode(g.final_texture)
 	rl.ClearBackground(rl.RayWhite)
-	g.draw(&g.final_texture)
+	g.draw()
 	rl.EndTextureMode()
 
 	rl.BeginDrawing()
@@ -78,12 +64,26 @@ func (g *Game) StabilizeWindowRatio() {
 
 	rl.EndDrawing()
 }
-func (g *Game) draw(finalTexture *rl.RenderTexture2D) {
+func (g *Game) update() {
+	dt := rl.GetFrameTime()
+	if rl.IsKeyPressed(rl.KeySpace) && len(g.Arrows) < 5 {
+		NewArrow(rl.NewVector2(300, 600), 150, -45, 0.3, 16) //New Arrow Test
+	}
 
-	DrawArrows(finalTexture)
-	game.ProgressBars[1].draw()
+	for i := range g.Arrows {
+		g.Arrows[i].update(dt)
+	}
+	g.ProgressBars[0].progress += rl.GetMouseDelta().X * 0.005
+	g.ProgressBars[0].pos.Y += rl.GetMouseDelta().Y * 0.6
+	g.ProgressBars[0].update()
 
-	rl.DrawFPS(finalTexture.Texture.Width/2, 100)
+}
+func (g *Game) draw() {
+
+	DrawArrows(&g.final_texture)
+	g.ProgressBars[1].draw()
+
+	rl.DrawFPS(g.final_texture.Texture.Width/2, 100)
 }
 
 var game *Game
@@ -102,8 +102,8 @@ func main() {
 
 	// rl.SetTargetFPS(25)
 	for !rl.WindowShouldClose() {
-		game.update(&game.final_texture)
-		game.StabilizeWindowRatio()
+		game.update()
+		game.stabilizeRatioAndDraw()
 
 	}
 
