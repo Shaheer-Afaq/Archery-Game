@@ -1,5 +1,6 @@
 vendor/
 go.mod/
 go.sum/
+textures/
 raylib.dll
 README.md
