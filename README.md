@@ -1,4 +1,4 @@
-# THIS IS NOT COMPLETE YET, ITS JUST A PLACEHOLDER
+# THIS IS NOT COMPLETE YET, IT'S JUST A PLACEHOLDER
 # 🎯 Archery Game
 
 A simple archery game built with [raylib-go](https://github.com/gen2brain/raylib-go).
