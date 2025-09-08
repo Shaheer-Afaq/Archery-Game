@@ -6,22 +6,52 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var Arrows = make([]Arrow, 0, 20)
-var textureNames = [4]string{
-	"textures/arrow.png",
-}
-var textures [4]rl.Texture2D
-
-// var attack_cooldown Timer = NewTimer(0.5)
-
 type Game struct {
 	baseW         int32
 	baseH         int32
 	aspect        float32
 	final_texture rl.RenderTexture2D
+	Arrows        []Arrow
+	textureNames  [4]string
+	textures      [4]rl.Texture2D
+	ProgressBars  []ProgressBar
 }
 
-func (g *Game) draw() {
+func (g *Game) initialize() {
+	rl.InitWindow(g.baseW, g.baseH, "Archery Game")
+	rl.SetWindowState(rl.FlagWindowResizable)
+	g.final_texture = rl.LoadRenderTexture(g.baseW*2, g.baseH*2)
+	g.textureNames = [4]string{
+		"textures/arrow.png",
+	}
+	for i, texturesName := range g.textureNames {
+		g.textures[i] = rl.LoadTexture(texturesName)
+	}
+	fmt.Println("Loaded Textures")
+
+	g.Arrows = make([]Arrow, 0, 5)
+	g.ProgressBars = make([]ProgressBar, 0, 2)
+	g.ProgressBars = append(g.ProgressBars, NewProgressBar(20, 400, rl.NewVector2(100, 100), 1, rl.Red, rl.Black, 5, true))
+	g.ProgressBars = append(g.ProgressBars, NewProgressBar(400, 20, rl.NewVector2(100, 100), 1, rl.Red, rl.Black, 5, false))
+
+	// var Timebar ProgressBar = NewProgressBar(20, 400, rl.NewVector2(100, 100), 1, rl.Red, rl.Black, 5, true)
+
+}
+func (g *Game) update(final_texture *rl.RenderTexture2D) {
+	dt := rl.GetFrameTime()
+	if rl.IsKeyPressed(rl.KeySpace) && len(g.Arrows) < 5 {
+		NewArrow(rl.NewVector2(300, 600), 150, -45, 0.3, 16) //New Arrow Test
+	}
+
+	for i := range g.Arrows {
+		g.Arrows[i].update(dt)
+	}
+	g.ProgressBars[0].progress += rl.GetMouseDelta().X * 0.005
+	g.ProgressBars[0].pos.Y += rl.GetMouseDelta().Y * 0.6
+	g.ProgressBars[0].update()
+
+}
+func (g *Game) StabilizeWindowRatio() {
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
 	currentAspect := float32(w) / float32(h)
@@ -36,7 +66,7 @@ func (g *Game) draw() {
 
 	rl.BeginTextureMode(g.final_texture)
 	rl.ClearBackground(rl.RayWhite)
-	draw(&g.final_texture)
+	g.draw(&g.final_texture)
 	rl.EndTextureMode()
 
 	rl.BeginDrawing()
@@ -48,52 +78,32 @@ func (g *Game) draw() {
 
 	rl.EndDrawing()
 }
-
-func initialize() {
-	for i, texturesName := range textureNames {
-		textures[i] = rl.LoadTexture(texturesName)
-	}
-	fmt.Println(textures)
-
-}
-func update(final_texture *rl.RenderTexture2D) {
-	dt := rl.GetFrameTime()
-	if rl.IsKeyPressed(rl.KeySpace) {
-		NewArrow(rl.NewVector2(300, 600), 150, -45, 0.3, 16) //New Arrow Test
-	}
-
-	for i := range Arrows {
-		Arrows[i].update(dt)
-	}
-
-
-}
-func draw(finalTexture *rl.RenderTexture2D) {
+func (g *Game) draw(finalTexture *rl.RenderTexture2D) {
 
 	DrawArrows(finalTexture)
+	game.ProgressBars[1].draw()
 
 	rl.DrawFPS(finalTexture.Texture.Width/2, 100)
 }
 
+var game *Game
+
 func main() {
 
-	game := &Game{
+	game = &Game{
 		baseW:  1200,
 		baseH:  675,
 		aspect: 16.0 / 9.0,
 	}
 
-	rl.InitWindow(game.baseW, game.baseH, "Archery Game")
-	rl.SetWindowState(rl.FlagWindowResizable)
+	game.initialize()
 
-	game.final_texture = rl.LoadRenderTexture(game.baseW*2, game.baseH*2)
 	defer rl.UnloadRenderTexture(game.final_texture)
 
 	// rl.SetTargetFPS(25)
-	initialize()
 	for !rl.WindowShouldClose() {
-		update(&game.final_texture)
-		game.draw()
+		game.update(&game.final_texture)
+		game.StabilizeWindowRatio()
 
 	}
 
