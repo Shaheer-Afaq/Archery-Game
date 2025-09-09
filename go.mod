@@ -1,4 +1,4 @@
-module github.com/Shaheer-Afaq/Archery-Game.git
+module archery
 
 go 1.24.5
 
