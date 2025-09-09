@@ -17,8 +17,8 @@ type Arrow struct {
 	frictionTimer Timer
 }
 
-func (a *Arrow) update(dt float32) {
-	if a.frictionTimer.Update(dt) {
+func (a *Arrow) update() {
+	if a.frictionTimer.Update() {
 		a.velocity.X *= a.friction
 	}
 	a.velocity.Y += a.gravity * dt * 10
@@ -45,7 +45,7 @@ func (a *Arrow) draw(texture *rl.Texture2D) {
 	)
 }
 
-func (a *Arrow) get_hitbox(texture *rl.Texture2D) rl.Vector2 {
+func (a *Arrow) GetHitbox(texture *rl.Texture2D) rl.Vector2 {
 	cosA := float32(math.Cos(float64(a.angle) * rl.Deg2rad))
 	sinA := float32(math.Sin(float64(a.angle) * rl.Deg2rad))
 	offset := rl.NewVector2(float32(texture.Width)*a.scale/2, 0.0)
@@ -73,10 +73,9 @@ func NewArrow(pos rl.Vector2, power float32, angle float32, scale float32, gravi
 	})
 
 }
-
-func DrawArrows(finalTexture *rl.RenderTexture2D) {
+func DrawArrows() {
 	for i := 0; i < len(game.Arrows); {
-		if game.Arrows[i].pos.X > float32(finalTexture.Texture.Width) || game.Arrows[i].pos.Y > float32(finalTexture.Texture.Height) {
+		if game.Arrows[i].pos.X > float32(game.final_texture.Texture.Width) || game.Arrows[i].pos.Y > float32(game.final_texture.Texture.Height) {
 			game.Arrows[i] = game.Arrows[len(game.Arrows)-1]
 			game.Arrows = game.Arrows[:len(game.Arrows)-1]
 
@@ -84,6 +83,11 @@ func DrawArrows(finalTexture *rl.RenderTexture2D) {
 			game.Arrows[i].draw(&game.textures[0])
 			i++
 		}
+	}
+}
+func UpdateArrows() {
+	for i := range game.Arrows {
+		game.Arrows[i].update()
 	}
 }
 
@@ -130,8 +134,10 @@ func (pb *ProgressBar) draw() {
 }
 
 func NewProgressBar(width float32, height float32, pos rl.Vector2, progress float32, color rl.Color, bgcolor rl.Color, border_width float32, vertical bool) ProgressBar {
-	return ProgressBar{
+	pb := ProgressBar{
 		width: width, height: height, pos: pos, progress: progress, color: color, bgcolor: bgcolor,
 		visible: true, border_width: border_width, vertical: vertical,
 	}
+	game.ProgressBars = append(game.ProgressBars, pb)
+	return pb
 }

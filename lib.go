@@ -4,18 +4,18 @@ package main
 
 type Timer struct {
 	interval float32 // how often to trigger (seconds)
-	elapsed  float32 // accumulated time
+	elapsed  float32
 }
 
 func NewTimer(interval float32) Timer {
 	return Timer{interval: interval, elapsed: 0}
 }
 
-func (t *Timer) Update(dt float32) bool {
+func (t *Timer) Update() bool {
 	t.elapsed += dt
 	if t.elapsed >= t.interval {
 		t.elapsed -= t.interval
-		return true // time to trigger
+		return true
 	}
 	return false
 }
